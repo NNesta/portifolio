@@ -1,35 +1,93 @@
-// Live Codewars and GitHub numbers, fetched in the visitor's browser.
-// Answers are cached for an hour (GitHub allows 60 requests an hour per
-// visitor). Any failure returns null and the page keeps the numbers
-// written in content.ts.
+// Live Codewars, LeetCode and GitHub numbers, loaded in the visitor's
+// browser and shared by every component that shows them.
+//
+// - A returning visitor sees the last numbers straight away (localStorage),
+//   then fresh ones as soon as they arrive.
+// - Numbers refresh once they are older than their source's freshness
+//   limit: when the page opens, when the tab comes back into view, and on a
+//   timer while the page stays open. A change on Codewars or LeetCode shows
+//   up within minutes, without a rebuild.
+// - Any failure keeps whatever is already on screen.
 
 import type { CodewarsStats, KyuColor, Repo } from "../types";
 
-const HOUR = 60 * 60 * 1000;
+const MINUTE = 60_000;
 
-/** Fetches `url` as `Json` and keeps what `pick` returns. */
-export async function getJSON<Json, T>(key: string, url: string, pick: (json: Json) => T | null, signal: AbortSignal) {
+/** How old numbers may get before they are fetched again. */
+export const FRESH = {
+  codewars: 5 * MINUTE,
+  leetcode: 5 * MINUTE,
+  github: 60 * MINUTE, // GitHub allows 60 requests an hour per visitor
+};
+
+interface Entry {
+  t: number; // when it was fetched
+  d: unknown; // the picked data
+}
+
+const memory = new Map<string, Entry>();
+const listeners = new Map<string, Set<() => void>>();
+const loading = new Set<string>();
+
+export async function fetchJSON(url: string, signal?: AbortSignal): Promise<unknown> {
+  const res = await fetch(url, { signal, headers: { Accept: "application/json" } });
+  if (!res.ok) throw new Error(`${res.status} from ${url}`);
+  return res.json();
+}
+
+/** The latest data for `key`, or null. Stable between changes, as React needs. */
+export function peek<T>(key: string): T | null {
+  return (memory.get(key)?.d as T | undefined) ?? null;
+}
+
+/** Fetches `url` unless the data for `key` is fresh or already loading. */
+export async function refresh<Json, T>(key: string, url: string, pick: (json: Json) => T | null, maxAge: number) {
+  const entry = memory.get(key);
+  if (loading.has(key) || (entry && Date.now() - entry.t < maxAge)) return;
+  loading.add(key);
   try {
-    const cached = JSON.parse(localStorage.getItem(key) ?? "null") as { t: number; d: T } | null;
-    if (cached && Date.now() - cached.t < HOUR) return cached.d;
-  } catch {
-    // Storage blocked or a bad entry: fetch fresh.
-  }
-  try {
-    const res = await fetch(url, { signal, headers: { Accept: "application/json" } });
-    if (!res.ok) return null;
-    const data = pick((await res.json()) as Json);
-    if (data) {
-      try {
-        localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: data }));
-      } catch {
-        // Not cached this time; the next visit fetches again.
-      }
+    const data = pick((await fetchJSON(url, AbortSignal.timeout(8000))) as Json);
+    if (!data) return;
+    const fresh = { t: Date.now(), d: data };
+    memory.set(key, fresh);
+    try {
+      localStorage.setItem(key, JSON.stringify(fresh));
+    } catch {
+      // Storage blocked: the numbers still show for this visit.
     }
-    return data;
+    listeners.get(key)?.forEach((notify) => notify());
   } catch {
-    return null;
+    // Offline, rate-limited or slow: keep what is shown.
+  } finally {
+    loading.delete(key);
   }
+}
+
+/** Subscribes to `key`: loads the stored copy, then keeps it fresh while the page is open. */
+export function watch(key: string, onChange: () => void, load: () => void, maxAge: number) {
+  if (!memory.has(key)) {
+    try {
+      const stored = JSON.parse(localStorage.getItem(key) ?? "null") as Entry | null;
+      if (stored && typeof stored.t === "number") memory.set(key, stored);
+    } catch {
+      // Nothing usable stored.
+    }
+  }
+  const subscribers = listeners.get(key) ?? new Set<() => void>();
+  listeners.set(key, subscribers);
+  subscribers.add(onChange);
+
+  const loadIfVisible = () => {
+    if (document.visibilityState === "visible") load();
+  };
+  load();
+  document.addEventListener("visibilitychange", loadIfVisible);
+  const timer = setInterval(loadIfVisible, maxAge);
+  return () => {
+    subscribers.delete(onChange);
+    document.removeEventListener("visibilitychange", loadIfVisible);
+    clearInterval(timer);
+  };
 }
 
 /* ------------------------------------------------------------ Codewars */

@@ -2,7 +2,11 @@ import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import App from "./App";
 import { site } from "./content";
+import { readEmbeddedSnapshot, setSnapshot } from "./lib/snapshot";
 import "./index.css";
+
+// Start from the numbers the page was built with, so hydration matches.
+setSnapshot(readEmbeddedSnapshot());
 
 const container = document.getElementById("root")!;
 const app = (

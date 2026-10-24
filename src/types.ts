@@ -74,6 +74,29 @@ export interface CodewarsProfile extends CodewarsStats {
   memberSince: string;
 }
 
+export interface LeetcodeProfile {
+  username: string;
+}
+
+/** Fetched live; there are no numbers to keep up to date in content.ts. */
+export interface LeetcodeStats {
+  solved: number;
+  easy: number;
+  medium: number;
+  hard: number;
+  totalEasy: number;
+  totalMedium: number;
+  totalHard: number;
+  /** Global ranking; null until LeetCode ranks the profile. */
+  ranking: number | null;
+  /** Null until the first contest. */
+  contestRating: number | null;
+  /** Contest standing as a percentage, e.g. 12.5 for the top 12.5%. */
+  contestTop: number | null;
+  /** Most-used languages first. */
+  languages: string[];
+}
+
 export interface Repo {
   name: string;
   description: string;
@@ -102,11 +125,13 @@ export interface SiteContent {
     github: string;
     linkedin: string;
     codewars: string;
+    leetcode: string;
     /** This site's repository. Leave "" to hide the "View source" link. */
     source: string;
   };
   hero: { availability: string; intro: string };
-  facts: { label: string; value: string }[];
+  /** `live: "codewars"` replaces the value with your current rank and kata count. */
+  facts: { label: string; value: string; live?: "codewars" }[];
   sections: Record<SectionId, { title: string; intro: string }>;
   featured: Featured | null;
   projects: Project[];
@@ -118,11 +143,12 @@ export interface SiteContent {
   languages: { name: string; level: string }[];
   practice: {
     codewars: CodewarsProfile | null;
+    leetcode: LeetcodeProfile | null;
     github: GithubProfile | null;
   };
   footer: { note: string; updated: string };
   settings: {
-    /** Load the latest Codewars numbers and GitHub repositories in the visitor's browser. */
+    /** Keep the Codewars, LeetCode and GitHub numbers up to date by themselves. */
     liveData: boolean;
   };
 }

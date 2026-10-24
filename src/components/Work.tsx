@@ -57,7 +57,7 @@ function ProjectCard({ project: p, delay }: { project: Project; delay: number })
       {/* On hover, an accent line sweeps along the top rule. */}
       <span
         aria-hidden="true"
-        className="absolute -top-px left-0 h-px w-full origin-left scale-x-0 bg-accent transition-[scale] duration-500 ease-[var(--ease)] group-hover/card:scale-x-100"
+        className="absolute -top-px left-0 h-px w-full origin-left scale-x-0 bg-accent transition-[scale] duration-500 ease-(--ease) group-hover/card:scale-x-100"
       />
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 className="type-title text-4xl leading-[1.1]">{p.name}</h3>

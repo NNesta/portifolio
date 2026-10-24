@@ -54,6 +54,9 @@
   --kyu-yellow: #a77b00;
   --kyu-blue: #3c7ebb;
   --kyu-purple: #8a5cc2;
+  --leet-easy: #0f8a7e; /* LeetCode difficulty colors, toned for contrast */
+  --leet-medium: #b07800;
+  --leet-hard: #c43d32;
   --contour: 26 95 122; /* RGB channels for the hero canvas */
   --contour-alpha: 0.2;
   --shadow: 0 1px 2px rgb(16 32 41 / 0.05), 0 10px 30px rgb(16 32 41 / 0.07);
@@ -76,6 +79,9 @@
     --kyu-yellow: #e2b93b;
     --kyu-blue: #6fa8dc;
     --kyu-purple: #b48ce6;
+    --leet-easy: #3ccbb9;
+    --leet-medium: #f2b33d;
+    --leet-hard: #f26b5e;
     --contour: 98 182 211;
     --contour-alpha: 0.24;
     --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px rgb(0 0 0 / 0.3);
@@ -94,6 +100,9 @@
   --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
   --color-live: var(--live);
+  --color-leet-easy: var(--leet-easy);
+  --color-leet-medium: var(--leet-medium);
+  --color-leet-hard: var(--leet-hard);
   --shadow-card: var(--shadow);
 
   /* Entrance animations read --delay from the element they run on. */

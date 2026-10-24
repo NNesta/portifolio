@@ -1,27 +1,16 @@
-import { useEffect, useState } from "react";
-import { getJSON } from "../lib/live";
+import { useCallback, useSyncExternalStore } from "react";
+import { peek, refresh, watch } from "../lib/live";
 
 /**
- * Loads live data after the page is on screen. Returns null until it
- * arrives, and keeps returning null if it can't load within 7 seconds.
+ * Live data for `key`, kept fresh while the page is open (see lib/live.ts).
+ * Null until it first arrives, and always null in the prerendered HTML.
  * Pass `url: null` to skip loading. `pick` must be a stable function.
  */
-export function useLive<Json, T>(key: string, url: string | null, pick: (json: Json) => T | null): T | null {
-  const [data, setData] = useState<T | null>(null);
-
-  useEffect(() => {
-    if (!url) return;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 7000);
-    getJSON(key, url, pick, controller.signal).then((result) => {
-      clearTimeout(timer);
-      if (result && !controller.signal.aborted) setData(result);
-    });
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [key, url, pick]);
-
-  return data;
+export function useLive<Json, T>(key: string, url: string | null, pick: (json: Json) => T | null, maxAge: number): T | null {
+  const subscribe = useCallback(
+    (onChange: () => void) => (url ? watch(key, onChange, () => refresh(key, url, pick, maxAge), maxAge) : () => {}),
+    [key, url, pick, maxAge],
+  );
+  const value = useSyncExternalStore(subscribe, () => peek<T>(key), () => null);
+  return url ? value : null;
 }

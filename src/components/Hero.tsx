@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "../content";
 import { useLocalTime } from "../hooks/useLocalTime";
-import { initials } from "../lib/utils";
+import { useCodewars } from "../hooks/useStats";
+import { formatNumber, initials } from "../lib/utils";
 import { Contours } from "./Contours";
 import { Icon } from "./Icon";
 import { ButtonLink, TextLink } from "./ui";
@@ -11,6 +12,7 @@ const at = (ms: number) => ({ "--delay": `${ms}ms` });
 
 export function Hero() {
   const { person, hero, facts, links } = site;
+  const codewars = useCodewars();
   const profiles = [
     { label: "GitHub", url: links.github },
     { label: "LinkedIn", url: links.linkedin },
@@ -90,7 +92,11 @@ export function Hero() {
                 style={at(640 + i * 70)}
               >
                 <dt className="text-sm text-muted">{fact.label}</dt>
-                <dd className="leading-[1.4] font-semibold">{fact.value}</dd>
+                <dd className="leading-[1.4] font-semibold">
+                  {fact.live === "codewars" && codewars
+                    ? `${codewars.rank}, ${formatNumber(codewars.completed)} kata solved`
+                    : fact.value}
+                </dd>
               </div>
             ))}
           </dl>

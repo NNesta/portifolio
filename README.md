@@ -17,7 +17,7 @@ with no animation library. All of them switch off when the visitor asks for redu
 | Hero | The name rises in word by word. A contour map of the hills around Kigali draws in behind the photo, and with a mouse, a soft lamp follows the pointer and brings out the lines beneath it. |
 | Featured project | The pipeline diagram plays itself: a reading travels from the chicken-house sensors to the phone, lighting each step as it arrives. |
 | Scrolling | Sections fade up once as they enter the screen. Content that is already visible never blinks. |
-| Practice | The Codewars and GitHub numbers count up, then ease to the live values when those arrive. |
+| Practice | The Codewars, LeetCode and GitHub numbers count up, and ease to new values whenever they change, even while the page is open. The LeetCode difficulty bars grow in. |
 | Menu | One underline slides to the section you are reading. |
 | Small things | The availability dot pulses, the clock's colon blinks and the time changes exactly on the minute, link arrows nudge on hover, and the theme switch cross-fades the page. |
 
@@ -36,12 +36,30 @@ The file is typed, so a missing comma or a misspelled field is underlined in VS 
   `public/assets/` and set `photo: "assets/profile.jpg"`. If a photo fails to load, the page shows
   your initials.
 - **CV:** replace `public/assets/Nestor_Ngabonziza_CV.pdf`, keeping the name.
-- **Live numbers:** the page loads your Codewars stats and your four most recently updated GitHub
-  repositories in the visitor's browser, cached for an hour. If they can't load, it shows the
-  numbers in `content.ts`, so update those now and then. `settings.liveData: false` turns this off;
-  `github.hideRepos` keeps a repository off the list.
 - **Source link:** once this repository is on GitHub, set `links.source` to its address to show a
   "View source" link in the footer.
+
+## Live numbers
+
+Codewars, LeetCode and GitHub keep themselves up to date; there is nothing to edit when your rank or
+kata count changes.
+
+1. **At build time**, `scripts/prerender.js` fetches your latest Codewars and LeetCode numbers and
+   writes them into the page, so the first paint is already current.
+2. **In the browser**, the page refreshes them when it opens, when the tab comes back into view,
+   and every five minutes while it stays open (GitHub every hour, its rate limit). A visitor sees a
+   new kata or a new rank within minutes, without a rebuild. Answers are cached in the visitor's
+   browser, so a returning visitor sees numbers straight away.
+
+| Source | Shown | How it's read |
+| --- | --- | --- |
+| Codewars | Rank, kata solved, honor, leaderboard, languages; also the hero's Codewars fact (`live: "codewars"`) | Codewars' public API, straight from the browser |
+| LeetCode | Solved (by difficulty), ranking, contest rating and percentile, languages | [`api/leetcode.ts`](api/leetcode.ts), a Vercel Function, because LeetCode doesn't allow browsers to read its API. Vercel's CDN caches each answer for five minutes. |
+| GitHub | Public repositories and the four most recently updated (`github.hideRepos` keeps one off the list) | GitHub's public API, straight from the browser |
+
+The LeetCode panel appears by itself once your profile has a solved problem, and until then it
+stays hidden rather than showing zeros. The numbers in `content.ts` are only a last resort, shown if
+nothing can be fetched. `settings.liveData: false` turns all of this off.
 
 ## Commands
 
@@ -67,6 +85,9 @@ then deploys by itself.
 
 **Netlify.** Build command `npm run build`, publish directory `dist`.
 
+On GitHub Pages and Netlify there is no `api/leetcode` function, so LeetCode shows the numbers
+from the last build instead of refreshing in the browser. Codewars and GitHub refresh everywhere.
+
 GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) lints and builds every push
 and pull request, so a broken change shows up as a red cross before it ships.
 
@@ -78,13 +99,16 @@ src/
 ├── types.ts          the shape of content.ts
 ├── index.css         design tokens, type roles, keyframes
 ├── components/       one file per section, plus small shared pieces (ui.tsx)
-├── hooks/            theme, local time, active section, live data
+├── hooks/            theme, local time, active section, live numbers
 ├── lib/
 │   ├── contours.ts   the hero canvas: noise, marching squares, the lamp
 │   ├── motion.ts     one shared IntersectionObserver, easing, reduced motion
-│   └── live.ts       Codewars and GitHub requests with caching
+│   ├── live.ts       live numbers: shared, cached, refreshed while the page is open
+│   ├── leetcode.ts   reads a LeetCode profile (used on the server only)
+│   └── snapshot.ts   the numbers the page was built with
 ├── main.tsx          browser entry: hydrates the prerendered page
 └── entry-server.tsx  build-time entry used by scripts/prerender.js
+api/leetcode.ts       Vercel Function behind the LeetCode panel (also served by `npm run dev`)
 public/assets/        CV, favicon and link-preview image, served at stable URLs
 ```
 

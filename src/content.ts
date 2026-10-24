@@ -25,7 +25,7 @@
      (keep the same file name), or change links.cv below.
    ===================================================================== */
 
-import type { SiteContent } from "./types";
+import type { SiteContent } from "./types.js"; // ".js" for api/leetcode.ts, which Vercel compiles as Node ESM
 
 export const site: SiteContent = {
   person: {
@@ -44,6 +44,7 @@ export const site: SiteContent = {
     github: "https://github.com/nnesta",
     linkedin: "https://www.linkedin.com/in/nestor-ngabonziza-5a6767155/",
     codewars: "https://www.codewars.com/users/Ngabonziza",
+    leetcode: "https://leetcode.com/u/ngabonest/",
     // After you push this site to GitHub, paste the repository address
     // here to show a "View source" link in the footer.
     source: "",
@@ -56,10 +57,11 @@ export const site: SiteContent = {
   },
 
   // Four short facts under the introduction.
+  // live: "codewars" keeps that fact in step with your Codewars profile.
   facts: [
     { label: "Experience", value: "3+ years shipping web and mobile apps" },
     { label: "Now", value: "Team Lead at Kumva Insights" },
-    { label: "Codewars", value: "4 kyu, 231 kata solved" },
+    { label: "Codewars", value: "4 kyu, 231 kata solved", live: "codewars" },
     { label: "Studying", value: "MSc in Big Data Analytics" },
   ],
 
@@ -290,8 +292,10 @@ export const site: SiteContent = {
     { name: "French", level: "Basic" },
   ],
 
-  // Numbers here are shown if the live numbers from Codewars or GitHub
-  // can't load. Update them now and then.
+  // Codewars, LeetCode and GitHub numbers update by themselves: every build
+  // fetches the latest ones, and the page refreshes them in the visitor's
+  // browser. The numbers written here are only a last resort, shown if
+  // the live numbers can't load at all.
   practice: {
     codewars: {
       username: "Ngabonziza",
@@ -302,6 +306,10 @@ export const site: SiteContent = {
       leaderboard: 28003,
       languages: ["JavaScript", "Python"],
       memberSince: "September 2022",
+    },
+    // The LeetCode panel appears by itself once you have solved a problem.
+    leetcode: {
+      username: "ngabonest",
     },
     github: {
       username: "nnesta",
@@ -325,8 +333,8 @@ export const site: SiteContent = {
   },
 
   settings: {
-    // true: load your latest Codewars numbers and GitHub repositories
-    // when someone opens the site. false: always use the numbers above.
+    // true: keep your Codewars, LeetCode and GitHub numbers up to date by
+    // themselves. false: always use the numbers above (LeetCode is hidden).
     liveData: true,
   },
 };

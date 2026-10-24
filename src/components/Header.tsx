@@ -164,7 +164,7 @@ function Menu({ open, current, onNavigate }: MenuProps) {
         aria-hidden="true"
         className={cx(
           "pointer-events-none absolute bottom-1.25 left-0 h-0.5 w-px origin-left bg-accent max-md:hidden",
-          bar.slide ? "transition-[translate,scale,opacity] duration-500 ease-[var(--ease)]" : "transition-opacity duration-300",
+          bar.slide ? "transition-[translate,scale,opacity] duration-500 ease-(--ease)" : "transition-opacity duration-300",
         )}
         style={{ opacity: bar.visible ? 1 : 0, translate: `${bar.x}px 0`, scale: `${bar.width} 1` }}
       />
