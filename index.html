@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Nestor Ngabonziza · Full-stack web developer</title>
+    <meta name="description" content="Nestor Ngabonziza is a full-stack web developer and team lead in Kigali, Rwanda. He builds fast, reliable web and mobile apps with React, Next.js, TypeScript and Node.js." />
+    <meta name="author" content="Nestor Ngabonziza" />
+    <meta name="theme-color" content="#f3f6f7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d1519" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+
+    <!-- Link previews (LinkedIn, WhatsApp, Slack). If your site lives on
+         another address, change the two URLs below. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Nestor Ngabonziza, full-stack web developer" />
+    <meta property="og:description" content="Web and mobile apps with React, Next.js, TypeScript and Node.js. Team lead in Kigali, Rwanda." />
+    <meta property="og:url" content="https://www.nestorngabonziza.com/" />
+    <meta property="og:image" content="https://www.nestorngabonziza.com/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preload" href="/src/assets/fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/src/assets/fonts/instrument-sans.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://avatars.githubusercontent.com" />
+
+    <!-- Apply a saved light/dark choice before the page paints -->
+    <script>
+      try {
+        var savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "light" || savedTheme === "dark") document.documentElement.dataset.theme = savedTheme;
+      } catch (e) {
+        // Storage blocked: follow the system theme.
+      }
+    </script>
+  </head>
+  <body>
+    <!-- The build fills this with the rendered page (scripts/prerender.js). -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
